@@ -22,62 +22,41 @@ public class NewsServlet extends HttpServlet {
             p.load(in);
 
             apiKey = p.getProperty("NEWS_API_KEY");
-            baseUrl = p.getProperty("NEWS_URL", "https://newsapi.org/v2/everything?");
+            baseUrl = p.getProperty("NEWS_URL");
 
-            if (apiKey == null || apiKey.isEmpty()) {
-                throw new ServletException("NEWS_API_KEY is empty");
-            }
-
+            if (apiKey == null || apiKey.isEmpty()) throw new ServletException("API key missing");
+            if (baseUrl == null || baseUrl.isEmpty())
+                baseUrl = "https://newsapi.org/v2/everything?";
         } catch (IOException e) {
-            throw new ServletException("Failed to load config.properties", e);
+            throw new ServletException("Failed to load config", e);
         }
     }
 
-    private JSONObject callNewsApi(String q, String from, String to, int page, int size) throws IOException {
+    private JSONObject callNewsAPI(String query, int page, int pageSize) throws IOException {
+        LocalDate today = LocalDate.now();
+        LocalDate weekAgo = today.minusDays(7);
 
-        StringBuilder sb = new StringBuilder(baseUrl);
-        sb.append("q=").append(URLEncoder.encode(q, "UTF-8"));
-        sb.append("&from=").append(from);
-        sb.append("&to=").append(to);
-        sb.append("&page=").append(page);
-        sb.append("&pageSize=").append(size);
-        sb.append("&sortBy=publishedAt");
-        sb.append("&apiKey=").append(apiKey);
+        String urlStr = baseUrl
+                + "q=" + URLEncoder.encode(query, "UTF-8")
+                + "&from=" + weekAgo
+                + "&to=" + today
+                + "&sortBy=publishedAt"
+                + "&page=" + page
+                + "&pageSize=" + pageSize
+                + "&apiKey=" + apiKey;
 
-        HttpURLConnection conn = (HttpURLConnection) new URL(sb.toString()).openConnection();
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                conn.getResponseCode() >= 200 && conn.getResponseCode() < 300
-                        ? conn.getInputStream()
-                        : conn.getErrorStream()
-        ));
-
-        StringBuilder resp = new StringBuilder();
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = br.readLine()) != null) resp.append(line);
 
-        return new JSONObject(resp.toString());
-    }
+        while ((line = br.readLine()) != null) sb.append(line);
+        br.close();
 
-    private JSONArray fetchWithFallback(String query, int page, int size) throws IOException {
-
-        // Try today's news first
-        LocalDate today = LocalDate.now();
-        JSONObject todayRes = callNewsApi(query, today.toString(), today.toString(), page, size);
-
-        JSONArray todayArticles = todayRes.optJSONArray("articles");
-        if (todayArticles != null && todayArticles.length() > 0) {
-            return todayArticles;
-        }
-
-        // If empty → last 7 days
-        LocalDate weekAgo = today.minusDays(7);
-        JSONObject weekRes = callNewsApi(query, weekAgo.toString(), today.toString(), page, size);
-
-        return weekRes.optJSONArray("articles") == null
-                ? new JSONArray()
-                : weekRes.getJSONArray("articles");
+        return new JSONObject(sb.toString());
     }
 
     @Override
@@ -87,46 +66,39 @@ public class NewsServlet extends HttpServlet {
         String path = req.getServletPath();
 
         if ("/news-data".equals(path)) {
-            handleNewsData(req, resp);
+            handleAjax(req, resp);
             return;
         }
 
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
 
-    private void handleNewsData(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String q = req.getParameter("q");
-        String category = req.getParameter("category");
-
-        String query = (q != null && !q.isEmpty())
-                ? q
-                : (category != null && !category.isEmpty() ? category : "india");
+    private void handleAjax(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String query = req.getParameter("q");
+        if (query == null || query.isEmpty()) query = "india";
 
         int page = Integer.parseInt(req.getParameter("page") == null ? "1" : req.getParameter("page"));
-        int size = Integer.parseInt(req.getParameter("pageSize") == null ? "10" : req.getParameter("pageSize"));
+        int pageSize = Integer.parseInt(req.getParameter("pageSize") == null ? "10" : req.getParameter("pageSize"));
 
-        JSONArray articles;
         try {
-            articles = fetchWithFallback(query, page, size);
-        } catch (Exception ex) {
-            JSONObject err = new JSONObject();
-            err.put("status", "error");
-            err.put("message", ex.getMessage());
-            err.put("articles", new JSONArray());
-            writeJson(resp, err);
-            return;
+            JSONObject apiResponse = callNewsAPI(query, page, pageSize);
+
+            JSONObject out = new JSONObject();
+            out.put("status", apiResponse.optString("status"));
+            out.put("totalResults", apiResponse.optInt("totalResults"));
+            out.put("articles", apiResponse.optJSONArray("articles"));
+
+            resp.setContentType("application/json;charset=UTF-8");
+            resp.getWriter().write(out.toString());
+
+        } catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", "error");
+            out.put("message", e.getMessage());
+            out.put("articles", new JSONArray());
+
+            resp.setContentType("application/json;charset=UTF-8");
+            resp.getWriter().write(out.toString());
         }
-
-        JSONObject out = new JSONObject();
-        out.put("status", "ok");
-        out.put("count", articles.length());
-        out.put("articles", articles);
-
-        writeJson(resp, out);
-    }
-
-    private void writeJson(HttpServletResponse resp, JSONObject obj) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-        resp.getWriter().write(obj.toString());
     }
 }
