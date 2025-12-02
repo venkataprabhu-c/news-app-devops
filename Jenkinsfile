@@ -4,28 +4,28 @@ pipeline {
     stages {
 
         stage('Build') {
-            agent { label 'java' }
+            agent { label 'Java' }
             steps {
                 sh "mvn clean package"
             }
         }
 
         stage('Test') {
-            agent { label 'java' }
+            agent { label 'Java' }
             steps {
                 sh "mvn test"
             }
         }
 
         stage('Versioning') {
-            agent { label 'java' }
+            agent { label 'Java' }
             steps {
                 echo "version"
             }
         }
 
         stage('Deploy') {
-            agent { label 'java' }
+            agent { label 'Java' }
             steps {
                 sh """
                 /usr/bin/sudo cp /home/ubuntu/news-app-devops/target/news-app.war /opt/tomcat10/webapps/
