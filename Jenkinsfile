@@ -21,7 +21,7 @@ pipeline {
                               //                keyFileVariable: 'KEY_FILE',
                                        //       usernameVariable: 'SSH_USER')
                 //        ]) 
-                        {
+                      //  {
                             sh "rm -rf news-app-devops"
                             sh "git clone https://github.com/venkataprabhu-c/news-app-devops.git"
                         }
