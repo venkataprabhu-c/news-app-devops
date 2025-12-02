@@ -28,7 +28,7 @@ pipeline {
             agent { label 'java' }
             steps {
                 sh """
-                "/usr/bin/sudo cp /home/slave1/workspace/Project1_feature-1/target/news-app.war /opt/tomcat10/webapps/"
+                "/usr/bin/sudo cp /home/ubuntu/news-app-devops/target/news-app.war /opt/tomcat10/webapps/"
                 """
             }
         }
