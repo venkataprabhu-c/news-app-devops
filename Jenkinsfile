@@ -49,7 +49,7 @@ pipeline {
                 stage('Deploy') {
                     agent { label 'java' }
                     steps {
-                        sh "sudo cp /home/slave1/workspace/Hello-world-war_Pipeline/target/hello-world-war-1.0.0.war /opt/tomcat10/webapps/"
+                        sh "sudo cp /home/slave1/workspace/Project1_feature-1/ /opt/tomcat10/webapps/"
                     }
                 }
 
