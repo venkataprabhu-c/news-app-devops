@@ -57,4 +57,4 @@ pipeline {
             } // end parallel
         } // end stage
     } // end stages
-}
+}//
