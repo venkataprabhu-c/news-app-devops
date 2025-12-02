@@ -1,16 +1,15 @@
 pipeline {
     agent none
 
-    parameters {
-        string(name: 'mcmd', defaultValue: 'clean', description: 'Maven clean parameter')
-        booleanParam(name: 'SAMPLE_BOOLEAN', defaultValue: true, description: 'A boolean parameter')
-        choice(name: 'mcmd1', choices: ['validate', 'compile', 'package','test'], description: 'Choose one option')
-    }
+   // parameters {
+    //    string(name: 'mcmd', defaultValue: 'clean', description: 'Maven clean parameter')
+     //   booleanParam(name: 'SAMPLE_BOOLEAN', defaultValue: true, description: 'A boolean parameter')
+       // choice(name: 'mcmd1', choices: ['validate', 'compile', 'package','test'], description: 'Choose one option')
+    } //
 
     stages {
         stage('Project feature1') {
             parallel {
-
                 stage('Checkout') {
                     agent { label 'java' }
                     steps {
@@ -31,13 +30,13 @@ pipeline {
                 stage('Build') {
                     agent { label 'java' }
                     steps {
-                        sh "mvn ${mcmd} ${mcmd1}"
+                        sh "mvn clean package"
                     }
                 }
                stage('Test') {
                     agent { label 'java' }
                     steps {
-                        sh "mvn ${mcmd1}"
+                        sh "mvn test"
                     }
                 }
               stage('Versioning') {
