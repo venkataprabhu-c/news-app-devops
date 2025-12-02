@@ -43,7 +43,7 @@ pipeline {
               stage('Versioning') {
                     agent { label 'java' }
                     steps {
-                        sh echo "version"
+                        sh "echo version"
                     }
                 }
 
