@@ -5,7 +5,7 @@ pipeline {
     //    string(name: 'mcmd', defaultValue: 'clean', description: 'Maven clean parameter')
      //   booleanParam(name: 'SAMPLE_BOOLEAN', defaultValue: true, description: 'A boolean parameter')
        // choice(name: 'mcmd1', choices: ['validate', 'compile', 'package','test'], description: 'Choose one option')
-    } //
+   // } 
 
     stages {
         stage('Project feature1') {
