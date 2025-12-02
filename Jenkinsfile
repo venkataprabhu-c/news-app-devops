@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage('hello-world-war') {
+        stage('Project feature1') {
             parallel {
 
                 stage('Checkout') {
@@ -22,8 +22,8 @@ pipeline {
                                               keyFileVariable: 'KEY_FILE',
                                               usernameVariable: 'SSH_USER')
                         ]) {
-                            sh "rm -rf hello-world-war"
-                            sh "git clone https://github.com/venkataprabhu-c/hello-world-war.git"
+                            sh "rm -rf news-app-devops"
+                            sh "git clone https://github.com/venkataprabhu-c/news-app-devops.git"
                         }
                     }
                 }
