@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         TOMCAT_USER = "tomcat"
-        TOMCAT_HOST = "your-server-ip"
+        TOMCAT_HOST = "13.48.133.49" //your-server-ip
         TOMCAT_PATH = "/opt/tomcat10/webapps"
         SSH_CRED = "1611344c-d6a7-4f9f-9a3e-e15aba774122"    // ssh-tomcat-key Jenkins SSH credentials ID
     }
