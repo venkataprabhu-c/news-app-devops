@@ -4,7 +4,7 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            agent {label 'Java' }
+            agent {label 'java' }
             steps {
                 
                 checkout scm
