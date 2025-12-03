@@ -4,7 +4,9 @@ pipeline {
     stages {
 
         stage('Checkout') {
+            agent {label 'Java' }
             steps {
+                
                 checkout scm
                 script {
                     BRANCH_NAME = env.BRANCH_NAME ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
