@@ -1,9 +1,9 @@
 pipeline {
   agent { label 'java' }
-	// environment {
- //    JFROG_URL = 'https://yashusn.jfrog.io/artifactory'
- //    REPO_NAME = 'news-app-libs-snapshot-local'      // JFrog repo for feature branches
- //  }
+	environment {
+    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory/'
+    REPO_NAME = 'new-app-libs-snapshot'      // JFrog repo for feature branches
+  }
 	
  stages {
 	 stage('Checkout') {
@@ -40,17 +40,17 @@ pipeline {
       }
     }
 
-    // stage('Upload to JFrog') {
-    //   steps {
-    //     withCredentials([string(credentialsId: 'JFROG_API_KEY', variable: 'JFROG_API_KEY')]) {
-    //       sh """
-    //         curl -f -H "X-JFrog-Art-Api: ${JFROG_API_KEY}" \
-    //             -T "${env.ARTIFACT}" \
-    //             "${JFROG_URL}/${REPO_NAME}/${env.BRANCH_NAME}/${env.ARTIFACT}"
-    //       """
-    //     }
-    //   }
-    // }
+    stage('Upload to JFrog') {
+      steps {
+        withCredentials([string(credentialsId: 'JFROG_API_KEY', variable: 'JFROG_API_KEY')]) {
+          sh """
+            curl -f -H "X-JFrog-Art-Api: ${JFROG_API_KEY}" \
+                -T "${env.ARTIFACT}" \
+                "${JFROG_URL}/${REPO_NAME}/${env.BRANCH_NAME}/${env.ARTIFACT}"
+          """
+        }
+      }
+    }
 	 
     stage('Deploy to Tomcat') {
       steps {
