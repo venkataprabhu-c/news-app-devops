@@ -1,48 +1,64 @@
 pipeline {
     agent { label 'java' }
-    
+
+    environment {
+        TOMCAT_USER = "tomcat"
+        TOMCAT_HOST = "your-server-ip"
+        TOMCAT_PATH = "/opt/tomcat10/webapps"
+        SSH_CRED = "ssh-tomcat-key"    // Jenkins SSH credentials ID
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'feature-1', url: 'https://github.com/venkataprabhu-c/news-app-devops.git'
             }
         }
+
         stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests=false'
             }
         }
+
         stage('Run Tests') {
             steps {
                 sh 'mvn test'
             }
         }
 
+        stage('Publish Test Reports') {
+            steps {
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+
         stage('Deploy WAR to Tomcat') {
             steps {
-                sh '''
-                    TOMCAT_PATH="/opt/tomcat10/webapps"
-                    WAR_FILE="target/news-app.war"
+                sshagent([env.SSH_CRED]) {
 
-                    echo "Cleaning old deployment..."
-                    sudo rm -rf $TOMCAT_PATH/news-app $TOMCAT_PATH/news-app.war
+                    sh """
+                        echo "Removing old deployment..."
+                        ssh ${TOMCAT_USER}@${TOMCAT_HOST} 'rm -rf ${TOMCAT_PATH}/news-app ${TOMCAT_PATH}/news-app.war'
 
-                    echo "Copying new WAR..."
-                    sudo cp $WAR_FILE $TOMCAT_PATH/
+                        echo "Copying new WAR..."
+                        scp target/news-app.war ${TOMCAT_USER}@${TOMCAT_HOST}:${TOMCAT_PATH}/
 
-                    echo "Restarting Tomcat..."
-                    pkill -f 'org.apache.catalina.startup.Bootstrap' || true
-                    nohup $TOMCAT_PATH/../bin/startup.sh &
-                '''
+                        echo "Restarting Tomcat..."
+                        ssh ${TOMCAT_USER}@${TOMCAT_HOST} 'sudo systemctl restart tomcat'
+                    """
+                }
             }
- }
+        }
     }
+
     post {
         success {
             echo 'Build and deployment completed successfully!'
         }
         failure {
             echo 'Build or deployment failed. Check logs for details.'
-        }
-    }
+        }
+    }
 }
