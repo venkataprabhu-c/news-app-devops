@@ -1,7 +1,7 @@
 pipeline {
   agent { label 'java' }
 	environment {
-    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory/'
+    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory'
     REPO_NAME = 'new-app-libs-snapshot'      // JFrog repo for feature branches
   }
 	
