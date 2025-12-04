@@ -1,36 +1,65 @@
 pipeline {
-    agent none
+  agent { label 'java' }
+	environment {
+    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory'
+    REPO_NAME = 'new-app-libs-snapshot'      // JFrog repo for feature branches
+  }
+	
+ stages {
+	 stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Test') {
+      steps {
+        sh 'mvn test'
+      }
+    }
 
-    stages {
+    stage('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+	 stage('Create Versioned Artifact') {
+      steps {
+        script {
+          def sha = sh(
+            script: 'git rev-parse --short HEAD',
+            returnStdout: true
+          ).trim()
 
-        stage('Build') {
-            agent { label 'Java' }
-            steps {
-                sh "mvn clean package"
-            }
+          def branchSafe = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9_.-]', '_')
+
+          env.ARTIFACT = "news-app-${branchSafe}-${env.BUILD_NUMBER}-${sha}.war"
+
+          sh "cp target/*.war ${env.ARTIFACT}"
+          archiveArtifacts artifacts: "${env.ARTIFACT}", fingerprint: true
         }
+      }
+    }
 
-        stage('Test') {
-            agent { label 'Java' }
-            steps {
-                sh "mvn test"
-            }
+    stage('Upload to JFrog') {
+      steps {
+        withCredentials([string(credentialsId: 'JFROG_API_KEY', variable: 'JFROG_API_KEY')]) {
+          sh """
+            curl -f -H "X-JFrog-Art-Api: ${JFROG_API_KEY}" \
+                -T "${env.ARTIFACT}" \
+                "${JFROG_URL}/${REPO_NAME}/${env.BRANCH_NAME}/${env.ARTIFACT}"
+          """
         }
-
-        stage('Versioning') {
-            agent { label 'Java' }
-            steps {
-                echo "version"
-            }
+      }
+    }
+	 
+    stage('Deploy to Tomcat') {
+      steps {
+			sh "sudo rm -rf /opt/tomcat10/webapps/news-app"
+			//sudo rm /opt/tomcat10/webapps/news-app.war
+			sh "sudo cp /home/slave/workspace/Multi_news_feature-1/target/news-app.war /opt/tomcat10/webapps"
+		  		  	sh "sudo /opt/tomcat10/bin/shutdown.sh"
+			sh "sudo /opt/tomcat10/bin/startup.sh"
         }
-
-        stage('Deploy') {
-            agent { label 'Java' }
-            steps {
-                sh """
-                /usr/bin/sudo cp /home/ubuntu/news-app-devops/target/news-app.war /opt/tomcat10/webapps/
-                """
-            }
-        }
+      }
     }
 }
