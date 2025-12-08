@@ -19,9 +19,14 @@ pipeline {
     //   }
     // }
 
-    stage('Build') {
+    // stage('Build') {
+    //   steps {
+    //     sh 'mvn clean package'
+    //   }
+    // }
+	 stage('Build') {
       steps {
-        sh 'mvn clean package'
+        build 'install'
       }
     }
 	 // stage('Create Versioned Artifact') {
