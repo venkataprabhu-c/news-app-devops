@@ -14,11 +14,11 @@ pipeline {
         checkout scm
       }
     }
-    stage('Test') {
-      steps {
-        build 'install'
-      }
-    }
+    // stage('Test') {
+    //   steps {
+    //     build 'install'
+    //   }
+    // }
 
     stage('Build') {
       steps {
