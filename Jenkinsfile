@@ -1,9 +1,11 @@
+@Library('Mylibrary') _
+
 pipeline {
   agent { label 'java' }
-	environment {
-    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory'
-    REPO_NAME = 'new-app-libs-snapshot'      // JFrog repo for feature branches
-  }
+	// environment {
+ //    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory'
+ //    REPO_NAME = 'new-app-libs-snapshot'      // JFrog repo for feature branches
+ //  }
 	
  stages {
 	 stage('Checkout') {
@@ -11,46 +13,46 @@ pipeline {
         checkout scm
       }
     }
-    stage('Test') {
-      steps {
-        sh 'mvn test'
-      }
-    }
+    // stage('Test') {
+    //   steps {
+    //     sh 'mvn test'
+    //   }
+    // }
 
     stage('Build') {
       steps {
         sh 'mvn clean package'
       }
     }
-	 stage('Create Versioned Artifact') {
-      steps {
-        script {
-          def sha = sh(
-            script: 'git rev-parse --short HEAD',
-            returnStdout: true
-          ).trim()
+	 // stage('Create Versioned Artifact') {
+  //     steps {
+  //       script {
+  //         def sha = sh(
+  //           script: 'git rev-parse --short HEAD',
+  //           returnStdout: true
+  //         ).trim()
 
-          def branchSafe = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9_.-]', '_')
+  //         def branchSafe = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9_.-]', '_')
 
-          env.ARTIFACT = "news-app-${branchSafe}-${env.BUILD_NUMBER}-${sha}.war"
+  //         env.ARTIFACT = "news-app-${branchSafe}-${env.BUILD_NUMBER}-${sha}.war"
 
-          sh "cp target/*.war ${env.ARTIFACT}"
-          archiveArtifacts artifacts: "${env.ARTIFACT}", fingerprint: true
-        }
-      }
-    }
+  //         sh "cp target/*.war ${env.ARTIFACT}"
+  //         archiveArtifacts artifacts: "${env.ARTIFACT}", fingerprint: true
+  //       }
+  //     }
+  //   }
 
-    stage('Upload to JFrog') {
-      steps {
-        withCredentials([string(credentialsId: 'JFROG_API_KEY', variable: 'JFROG_API_KEY')]) {
-          sh """
-            curl -f -H "X-JFrog-Art-Api: ${JFROG_API_KEY}" \
-                -T "${env.ARTIFACT}" \
-                "${JFROG_URL}/${REPO_NAME}/${env.BRANCH_NAME}/${env.ARTIFACT}"
-          """
-        }
-      }
-    }
+  //   stage('Upload to JFrog') {
+  //     steps {
+  //       withCredentials([string(credentialsId: 'JFROG_API_KEY', variable: 'JFROG_API_KEY')]) {
+  //         sh """
+  //           curl -f -H "X-JFrog-Art-Api: ${JFROG_API_KEY}" \
+  //               -T "${env.ARTIFACT}" \
+  //               "${JFROG_URL}/${REPO_NAME}/${env.BRANCH_NAME}/${env.ARTIFACT}"
+  //         """
+  //       }
+  //     }
+  //   }
 	 
     stage('Deploy to Tomcat') {
       steps {
