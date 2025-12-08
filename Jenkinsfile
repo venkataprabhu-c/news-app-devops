@@ -16,13 +16,13 @@ pipeline {
     }
     stage('Test') {
       steps {
-        build('test')
+        build 'install'
       }
     }
 
     stage('Build') {
       steps {
-        build('package')
+        build 'package'
       }
     }
 	 // stage('Create Versioned Artifact') {
@@ -57,7 +57,7 @@ pipeline {
 	 
     stage('Deploy to Tomcat') {
       steps {
-			sh "sudo rm -rf /opt/tomcat10/webapps/news-app"
+			// sh "sudo rm -rf /opt/tomcat10/webapps/news-app"
 			//sudo rm /opt/tomcat10/webapps/news-app.war
 		sh "sudo cp /home/slave/workspace/Test_SharedLibrary/target/news-app.war /opt/tomcat10/webapps"
 		
