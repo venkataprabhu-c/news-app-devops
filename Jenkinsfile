@@ -22,9 +22,11 @@ pipeline {
 
     stage('Build') {
       steps {
+		  script{
         build 'package'
       }
     }
+	}
 	 // stage('Create Versioned Artifact') {
   //     steps {
   //       script {
