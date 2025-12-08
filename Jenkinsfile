@@ -1,10 +1,9 @@
 @Library('Mylibrary') _
 
 pipeline {
- // agent { label 'java' }
+ agent { label 'java' }
 
-agent any
-	// environment {
+// environment {
  //    JFROG_URL = 'https://trialv6ppcu.jfrog.io/artifactory'
  //    REPO_NAME = 'new-app-libs-snapshot'      // JFrog repo for feature branches
  //  }
