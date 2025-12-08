@@ -26,7 +26,7 @@ pipeline {
     // }
 	 stage('Build') {
       steps {
-        build 'install'
+        build 'package'
       }
     }
 	 // stage('Create Versioned Artifact') {
