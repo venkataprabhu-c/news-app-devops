@@ -23,7 +23,9 @@ pipeline {
     stage('Build') {
       steps {
 		  script{
+			  dir('Test_SharedLibrary'){
         build 'package'
+			  }
       }
     }
 	}
