@@ -24,7 +24,7 @@ pipeline {
       steps {
 		  script{
 			  dir('news-app-devops'){
-        build 'package'
+        build 'install'
 			  }
       }
     }
