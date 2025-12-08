@@ -23,7 +23,7 @@ pipeline {
     stage('Build') {
       steps {
 		  script{
-			  dir('Test_SharedLibrary'){
+			  dir('news-app'){
         build 'package'
 			  }
       }
