@@ -59,7 +59,7 @@ pipeline {
       steps {
 			sh "sudo rm -rf /opt/tomcat10/webapps/news-app"
 			//sudo rm /opt/tomcat10/webapps/news-app.war
-		sh "sudo cp /home/slave/workspace/Test_SharedLibrary/target /opt/tomcat10/webapps"
+		sh "sudo cp /home/slave/workspace/Test_SharedLibrary/target/news-app.war /opt/tomcat10/webapps"
 		
 		  		  	sh "sudo /opt/tomcat10/bin/shutdown.sh"
 			sh "sudo /opt/tomcat10/bin/startup.sh"
