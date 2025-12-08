@@ -23,7 +23,7 @@ pipeline {
     stage('Build') {
       steps {
 		  script{
-			  dir('news-app'){
+			  dir('news-app-devops'){
         build 'package'
 			  }
       }
