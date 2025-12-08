@@ -61,7 +61,7 @@ agent any
 			sh "sudo rm -rf /opt/tomcat10/webapps/news-app"
 			//sudo rm /opt/tomcat10/webapps/news-app.war
 		//	sh "sudo cp /home/slave/workspace/Multi_news_feature-1/target/news-app.war /opt/tomcat10/webapps"
-		 sh "sudo cp /var/lib/jenkins/workspace/Test_SharedLibrary@2/ /opt/tomcat10/webapps"
+		 sh "sudo cp /var/lib/jenkins/workspace/Test_SharedLibrary/target /opt/tomcat10/webapps"
 		  		  	sh "sudo /opt/tomcat10/bin/shutdown.sh"
 			sh "sudo /opt/tomcat10/bin/startup.sh"
         }
