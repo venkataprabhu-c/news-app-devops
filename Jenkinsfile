@@ -1,3 +1,5 @@
+@Library('Mylibrary') _
+
 pipeline {
   agent { label 'java' }
 	environment {
@@ -13,13 +15,13 @@ pipeline {
     }
     stage('Test') {
       steps {
-        sh 'mvn test'
+        build('test')
       }
     }
 
     stage('Build') {
       steps {
-        sh 'mvn clean package'
+        build('package')
       }
     }
 	 stage('Create Versioned Artifact') {
